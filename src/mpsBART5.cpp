@@ -535,13 +535,11 @@ void grow(Node* tree, modelParam &data, arma::vec &curr_res){
         double old_var_split_rule = g_node->var_split_rule;
 
         // Calculate current tree log likelihood
-        double tree_log_like = 0;
 
         // Calculating the whole likelihood fo the tree
         for(int i = 0; i < t_nodes.size(); i++){
                 // cout << "Error SplineNodeLogLike" << endl;
                 t_nodes[i]->splineNodeLogLike(data, curr_res);
-                tree_log_like = tree_log_like + t_nodes[i]->log_likelihood;
         }
 
         // cout << "LogLike Node ok Grow" << endl;
@@ -636,10 +634,10 @@ void grow(Node* tree, modelParam &data, arma::vec &curr_res){
         double log_transition_prob = log((0.3)/(nog_nodes.size()+1)) - log(0.3/t_nodes.size()); // 0.3 and 0.3 are the prob of Prune and Grow, respectively
 
         // Calculating the loglikelihood for the new branches
-        double new_tree_log_like = tree_log_like - g_node->log_likelihood + g_node->left->log_likelihood + g_node->right->log_likelihood ;
+        double new_tree_log_like =  - g_node->log_likelihood + g_node->left->log_likelihood + g_node->right->log_likelihood ;
 
         // Calculating the acceptance ratio
-        double acceptance = exp(new_tree_log_like - tree_log_like + log_transition_prob + tree_prior);
+        double acceptance = exp(new_tree_log_like  + log_transition_prob + tree_prior);
 
         if(data.stump){
                 acceptance = acceptance*(-1);
@@ -1298,10 +1296,9 @@ void updateBeta(Node* tree, modelParam &data){
 
                                 // Getting the sum element
                                 for(int k = 0; k < data.d_var; k++){
-                                        if((k == j) || (t_nodes[i]->ancestors(k)==0)){ // Doing for all that doesn't contain B
-                                                continue;
+                                        if(k != j){ // Doing for all that doesn't contain B
+                                                cov_sum_aux = cov_sum_aux + t_nodes[i]->B.slice(k)*t_nodes[i]->betas.col(k);
                                         }
-                                        cov_sum_aux = cov_sum_aux + t_nodes[i]->B.slice(k)*t_nodes[i]->betas.col(k);
                                 }
 
                                 // Calculating elements exclusive to each predictor
