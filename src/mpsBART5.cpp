@@ -1224,9 +1224,11 @@ void Node::splineNodeLogLike(modelParam& data, arma::vec &curr_res){
                 // Using all predictors
                 // ==
                 // Adding the bestas prior parcel over the residuals covariance (Only adding if a covariate in within the terminal node)
+                // RETURNING TO BART ---- Coment the line below for res_cov
                 // if(ancestors(k)>0){
                         res_cov = res_cov + (1/data.tau_b(k))*B_.slice(k)*data.diag*B_t_.slice(k); // Do not penalise by tree number of trees factor
                 // }
+
                 // Test elements
                 for(int i = 0 ; i < n_leaf_test;i++){
                         for(int j = 0 ; j < data.B_test.n_cols; j++){
@@ -1237,7 +1239,7 @@ void Node::splineNodeLogLike(modelParam& data, arma::vec &curr_res){
         }
 
 
-        // Sotring the new quantities for the node
+        // Storing the new quantities for the node
         B = B_;
         B_t = B_t_;
         b_t_ones = b_t_ones_;
@@ -1401,7 +1403,7 @@ void getPredictions(Node* tree,
 
                 for(int j = 0;j<data.d_var;j++){
                         // ==
-                        // Using all predictors
+                        // Using all predictors (MODEL WITH ONLY THE INTERCEPT)
                         // ==
                         // if(t_nodes[i]->ancestors(j)>0){
                                 betas_b_sum = betas_b_sum + t_nodes[i]->B.slice(j)*t_nodes[i]->betas.col(j); // Only gonna contribute to the predictions in case that
@@ -1442,7 +1444,7 @@ void getPredictions(Node* tree,
 
                 for(int j = 0;j<data.d_var;j++){
                         // ==
-                        // Using all predictors
+                        // Using all predictors (INTERCEPT MODEL ONLY)
                         // ==
                         // if(t_nodes[i]->ancestors(j)>0){
                                 betas_b_sum_test = betas_b_sum_test + t_nodes[i]->B_test.slice(j)*t_nodes[i]->betas.col(j);
@@ -1779,7 +1781,7 @@ Rcpp::List sbart(arma::mat x_train,
 
                 // Updating the Tau
                 // std::cout << "Error TauB: " << data.tau_b << endl;
-                // updateTauB(all_forest,data);
+                updateTauB(all_forest,data);
                 // updateTauBintercept(all_forest,data,a_tau_b,d_tau_b);
 
                 // std::cout << "Error Delta: " << data.delta << endl;
